@@ -3,7 +3,7 @@
 ## Running the entire Project
 
 ```bash
-#Instal required dependencies then run app
+#Install required dependencies then run app
 $ pip install -r requirements.txt
 $ python3 app.py
 ```
