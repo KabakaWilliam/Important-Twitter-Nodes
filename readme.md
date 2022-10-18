@@ -29,6 +29,7 @@ The Project Proposal is `williamProposal15112.pdf`
 - [ ] Create a loading indicator for when someone submits a url or hastag on the UI
 - [ ] Impelment regex to extract twitter data for a tweet from a user inputed URL
 - [ ] Port networkX code into main UI.
+- [ ] Introduce filters onto the main tkinter search UI. These should be fed to the twitter spider
 - [ ] Implement page rank with networkX
 - [ ] Implement Djikstra's algorithm
 - [ ] Find way to display these results on the screen

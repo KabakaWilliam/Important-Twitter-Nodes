@@ -5,31 +5,9 @@ import tweepy
 from settings import API_KEY, API_KEY_SECRET, API_TOKEN_SECRET,API_ACCESS_TOKEN
 
 
-# # main function that will call the twitter api to retrieve tweets
-# def retrieveTweets(phrase, timeFrame, numbTweet):
-#     # create a database/DataFrame
-#     database = pd.DataFrame(columns=[
-#         "username",
-#         "description",
-# 		"location",
-# 		"following",
-# 		"followers",
-# 		"totaltweets",
-# 		"retweetcount",
-# 		"text",
-# 		"hashtags",
-# 		"accountID",
-# 		"accountCreatedAt",
-# 		"tweetID" 
-#     ])
-
-#     tweets = tweepy.Cursor(api.search_tweets, )
-
-
-
 class twitterSpider():
     def __init__(self, consumerKey, consumerSecret, accessKey, accessSecret, searchTerm, searchDate, numberOfTweets):
-        # search date mus be in yyyy-mm--dd
+        # search date mus be in yyyy-mm--dd. Example: 2022-10-17
         auth = tweepy.OAuthHandler(consumerKey, consumerSecret)
         auth.set_access_token(accessKey, accessSecret)
         self.api = tweepy.API(auth)
@@ -106,21 +84,38 @@ class twitterSpider():
             
             database.loc[len(database)] = nthTweet
 
-            print(str(n) +"th Downloaded tweet")
+            print(str(n) +"th tweet downloaded")
             n += 1 # move onto the next tweet in the list
         
         filename = "data.csv"
 
         # save dataframe into a csv file
         database.to_csv(filename)
+        print("saved all tweets 🎉✨")
 
 if __name__ == '__main__':
         # when run as a solo module, you can search for a tweet from the terminal
-        print("Input a  HashTag  or term to search twitter for")
+        print("Input a hashTag  or term to search twitter for")
         searchTerm = input()
 
         print("Input a  date to search from in the form yyyy-mm--dd")
         searchTimeFrame = input()
+
+        print("How many tweets do you want to get back")
+        tweetNum = input()
+        tweetNum = int(tweetNum)
+
+        # i am going to limit this to 50 for performance reasons 
+        if tweetNum >= 51:
+            print("================================================")
+            print("================================================")
+            print("Hmmm 😗😗😗 ...")
+            print("Slow down buddy 🐌.")
+            print("My overlord has instructed me to return only 50 tweets 😗")
+            print("================================================")
+            print("================================================")
+            tweetNum = 50
+
 
         # use keys and credentials from twitter API
         consumerKey = API_KEY
@@ -128,6 +123,6 @@ if __name__ == '__main__':
         accessKey = API_ACCESS_TOKEN
         accessSecret = API_TOKEN_SECRET
 
-        spider = twitterSpider(consumerKey, consumerSecret, accessKey, accessSecret, searchTerm, searchTimeFrame, 10)
+        spider = twitterSpider(consumerKey, consumerSecret, accessKey, accessSecret, searchTerm, searchTimeFrame, tweetNum)
 
         spider.fetchTweets()
