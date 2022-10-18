@@ -1,7 +1,13 @@
 import tkinter
 
-from UI.helpers import isValidTweetUrl 
+from UI.helpers import isValidTweetUrl
+from processTweets import twitterSpider 
+from settings import API_KEY, API_KEY_SECRET, API_TOKEN_SECRET,API_ACCESS_TOKEN
 
+consumerKey = API_KEY
+consumerSecret = API_KEY_SECRET
+accessKey = API_ACCESS_TOKEN
+accessSecret = API_TOKEN_SECRET
 
 
 class searchScreen(tkinter.Tk):
@@ -24,7 +30,9 @@ class searchScreen(tkinter.Tk):
         inputFrame.pack()
     
     def searchForTweet(self):
-        input = self.userEntry.get()
+        searchTerm = self.userEntry.get()
+        spider = twitterSpider(consumerKey, consumerSecret, accessKey, accessSecret, searchTerm, "2022-10-17", 10)
+        spider.fetchTweets() 
         # check if url or hashtag
 
 
