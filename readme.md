@@ -10,7 +10,7 @@ $ python3 app.py
 
 ### File instructions
 
-Run `hashtagCollection.py` to collect tweets that contain specified term in the terminal.
+Run `processTweets.py` to collect tweets that contain specified term in the terminal.
 
 Fill out appropriate environment variables
 
