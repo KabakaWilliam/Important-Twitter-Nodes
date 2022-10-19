@@ -87,7 +87,7 @@ class twitterSpider():
             print(str(n) +"th tweet downloaded")
             n += 1 # move onto the next tweet in the list
         
-        filename = "data.csv"
+        filename = f"{searchTerm}.csv"
 
         # save dataframe into a csv file
         database.to_csv(filename)

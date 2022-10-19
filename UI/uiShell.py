@@ -15,7 +15,7 @@ class searchScreen(tkinter.Tk):
     # color pallete: foreground: #4A474C, background: #889495
     def __init__(self):
         super().__init__()
-        self.geometry("600x600")
+        self.geometry("800x600")
         self.title("Notable Nodes")
         self.configure(background="#889495")
         inputFrame = tkinter.Frame(self, width=600, height=300)
@@ -31,8 +31,6 @@ class searchScreen(tkinter.Tk):
     
     def searchForTweet(self):
         searchTerm = self.userEntry.get()
-        spider = twitterSpider(consumerKey, consumerSecret, accessKey, accessSecret, searchTerm, "2022-10-17", 10)
-        spider.fetchTweets() 
         # check if url or hashtag
 
 
@@ -47,6 +45,8 @@ class searchScreen(tkinter.Tk):
                 self.inputMessageBox.destroy() # will remove all message boxes
             print("hashtag:", input) #will show green border to signal that all is well
             self.searchBox.configure(highlightbackground="green", highlightthickness=3)
+            spider = twitterSpider(consumerKey, consumerSecret, accessKey, accessSecret, searchTerm, "2022-10-17", 10)
+            spider.fetchTweets() 
         else:
             print("insert valid tweetURL or hashtag:", input)
             # red border to signal something has gone wrong
