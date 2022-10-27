@@ -28,6 +28,15 @@ class searchScreen(tkinter.Tk):
 
         self.inputMessageBox = None # will have info from the state of a users input
         inputFrame.pack()
+
+        exampleFrame = tkinter.Frame(self, width=600, height=300)
+        exampleFrame.configure(background="#889495") # set the background to the same as body
+        tkinter.Label(exampleFrame, text="Or analyze Examples", background="#889495", font=("Helvetica", 20) ).grid(column=0, row=0,pady=10)
+        KANYE_BUTTON = tkinter.Button(exampleFrame, text="Kanye", width=20, height=5).grid(column=0, row=1, padx=10)
+        HOTD_BUTTON = tkinter.Button(exampleFrame, text="House of The Dragon", width=20, height=5).grid(column=1, row=1, padx=10)
+        WORLD_CUP_BUTTON = tkinter.Button(exampleFrame, text="Fifa World Cup", width=20, height=5).grid(column=2, row=1, padx=10)
+        exampleFrame.pack()
+
     
     def searchForTweet(self):
         searchTerm = self.userEntry.get()

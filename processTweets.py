@@ -40,6 +40,9 @@ class twitterSpider():
     # so that we do not have to manually fetch more tweets
         tweets = tweepy.Cursor(self.api.search_tweets, self.searchTerm,
          since_id=self.searchDate, tweet_mode="extended").items(self.numberOfTweets)
+        # for status in tweepy.Cursor(self.api.search_tweets, self.searchTerm,
+        #  since_id=self.searchDate, tweet_mode="extended").items(self.numberOfTweets):
+        #  print(status.id)
 
         # the .cursor()  method returns an object we can iterate over. This object has
         # various attributes that can tell us mroe about a tweet
@@ -84,7 +87,13 @@ class twitterSpider():
             
             database.loc[len(database)] = nthTweet
 
-            print(str(n) +"th tweet downloaded")
+            if n%(self.numberOfTweets * 0.25) == 0: #save a version of the file 25% of the time
+                progressFile = f"{searchTerm}_{n}.csv"
+                database.to_csv(progressFile)
+                print("saved progressive file")
+
+
+            print(str(n) +"th tweet saved to db")
             n += 1 # move onto the next tweet in the list
         
         filename = f"{searchTerm}.csv"
@@ -98,23 +107,23 @@ if __name__ == '__main__':
         print("Input a hashTag  or term to search twitter for")
         searchTerm = input()
 
-        print("Input a  date to search from in the form yyyy-mm--dd")
+        print("Input a  date to search from in the form yyyy--mm--dd")
         searchTimeFrame = input()
 
         print("How many tweets do you want to get back")
         tweetNum = input()
         tweetNum = int(tweetNum)
 
-        # i am going to limit this to 50 for performance reasons 
-        if tweetNum >= 51:
-            print("================================================")
-            print("================================================")
-            print("Hmmm 😗😗😗 ...")
-            print("Slow down buddy 🐌.")
-            print("My overlord has instructed me to return only 50 tweets 😗")
-            print("================================================")
-            print("================================================")
-            tweetNum = 50
+        # # i am going to limit this to 50 for performance reasons 
+        # if tweetNum >= 51:
+        #     print("================================================")
+        #     print("================================================")
+        #     print("Hmmm 😗😗😗 ...")
+        #     print("Slow down buddy 🐌.")
+        #     print("My overlord has instructed me to return only 50 tweets 😗")
+        #     print("================================================")
+        #     print("================================================")
+        #     tweetNum = 50
 
 
         # use keys and credentials from twitter API
