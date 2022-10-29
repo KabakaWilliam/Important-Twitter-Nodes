@@ -1,0 +1,35 @@
+,username,description,location,following,followers,totaltweets,retweetcount,text,hashtags,accountID,accountCreatedAt,tweetID
+0,shin_t_o_,"穴の空いたバケツ脳に知識を注ぎ続ける系ヒューマノイド / 分析とweb開発の話題多め / たまに ( ゲーム || Houdini || 自転車 || カメラ || ガジェット || v || AD, AVPD )",iwate → tokyo → tsukuba,789,346,16832,0,nextjs 13は取り敢えず上げるの方針で問題無さそうかな,[],2016-11-07 03:16:48+00:00,795464995010060288,1586153955138363392
+1,SinipS2,React에 관심많은 프론트엔드 개발자,,118,14,705,5,vite-plugin-ssr 넘 좋네요. nextjs의 어딘지 모르게 답답한 것들이 전부 해결됨. 이젠 vite안 쓸 이유가 없다!,[],2021-03-31 15:28:40+00:00,1377280732918255618,1586153796790468609
+2,magnemg,"MSc. in CS. I try to (re)tweet insights. Mostly: + Web & App Dev (JS/Ruby) + Programming Languages. Occasionally: + Crypto (IOTA, Tether/USDT) + Startups.","Oslo, Norway",1514,401,11274,0,"""Is React Native + Next.js production-ready?""
+
+by @FernandoTheRojo (Oct 28, 2022 @ @vercel conf)
+
+Flawless presentation!👌👌
+
+https://t.co/T4SdVXIQxY
+
+#reactnative @reactnative #crossplatform #apps #nextjs #expo @expo #rnw @reactweb #solito #zeego #nativewind #tamagui @tamagui_js","['reactnative', 'crossplatform', 'apps', 'nextjs', 'expo', 'rnw', 'solito', 'zeego', 'nativewind', 'tamagui']",2010-06-12 03:51:51+00:00,154762008,1586152995586248707
+3,nicopellerin_io,Half-nerd. Half-artist. 🤖 🎹 Maker of things. \ (•◡•) / 🇨🇦,"Montréal, Québec",447,215,2230,0,@SebiDev Using this guide from beta docs helped a lot https://t.co/6zYoWZn9wc,[],2014-06-26 00:46:52+00:00,2588511204,1586152430860992513
+4,cool_left,,,1207,1279,17139,0,Nextjs turbopack 은 아직 module federation 기능은 없지만 monorepo에 최적화 되어 있어서 비슷한효과를 내거나 더 효율적으로 문제를 풀어내고 있는 듯.,[],2012-01-20 14:13:59+00:00,469349816,1586152364251426816
+5,jones_spencera,"Follow me for tweets on indie hacking, startups, software development & JavaScript/TypeScript/Node. Building @chime_social and https://t.co/wkot9GKFrb in public.",,662,6347,10833,0,"@DBredvick @nextjs @upstash Nice, @dbustac !
+
+Nailed the ratio 💪",[],2020-06-05 15:53:49+00:00,1268934001852657664,1586152281979768832
+6,soderlind,I code for fun,Risør / Oslo,275,246,2199,0,@kapehe_ok @sanity_io @nextjs I thought it was &lt;Studio&gt;,[],2008-05-14 08:46:10+00:00,14770903,1586152022222553088
+7,react_nextjs,SES ⇨ Freelance | Front-end engineer | React Next.js Angular Express Flutter TypeScript Java dart AWS #TSLab,東京,237,1153,1578,4,"こちらあと2週間になりました🔥🔥
+
+参加メンバーには
+現役フリーランス、学生さんなど様々な方に申込して頂いています🎉
+
+一般枠も残り少なくなってきました！
+
+この機会に是非エンジニアの仲間を一緒に作りましょう💪 https://t.co/NA7SsJmS7Y",[],2020-03-17 05:00:51+00:00,1239778671365255168,1586151987812667395
+8,ThisIsSingleton,Senior Software Engineer @zendesk | previously @americanexpress. @VMI1839 Class of '15. Opinions are my own. Writer for/owner of @_redshirtsports & @technavix,"Maricopa, AZ",673,303,6021,0,"So I want to fetch some data in my @nextjs _app.tsx that will be items for navigation... However, it is kind of not recommended according to the documentation and said to use the app directory... But the app directory docs say not to use it in production yet 🥹",[],2011-02-24 06:08:23+00:00,256855996,1586151416615170048
+9,rahul05ranjan,"6 yrs exp!
+I am PHP/NodeJs developer!!
+My bot do like and retweet of #programming #php #laravel 
+#javascript
+
+https://t.co/UO0vQZIY6v
+
+https://t.co/PiqS0ECXny","Chandigarh, India",428,4915,947084,1,Next.js vs. React: what should you use? #reactjs #javascript #frontend #webdev #dormosheio #react #nextjs #frontenddev https://t.co/Ld7uzW9bWu,"['reactjs', 'javascript', 'frontend', 'webdev', 'dormosheio', 'react', 'nextjs', 'frontenddev']",2011-11-13 11:40:23+00:00,411419084,1586150889999372288
