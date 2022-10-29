@@ -4,7 +4,7 @@
 
 ```bash
 #Install required dependencies then run app
-$ pip install -r requirements.txt
+$ pip3 install -r requirements.txt
 $ python3 app.py
 ```
 
@@ -26,6 +26,7 @@ The Project Proposal is `williamProposal15112.pdf`
 ### TO DO's:
 
 - [ ] Import twitter spider into the frontend
+- [ ] Add a date input widget
 - [ ] Create a loading indicator for when someone submits a url or hastag on the UI
 - [ ] Impelment regex to extract twitter data for a tweet from a user inputed URL
 - [ ] Port networkX code into main UI.

@@ -1,5 +1,5 @@
 import tkinter
-
+from tkcalendar import Calendar, DateEntry
 from UI.helpers import isValidTweetUrl
 from processTweets import twitterSpider 
 from settings import API_KEY, API_KEY_SECRET, API_TOKEN_SECRET,API_ACCESS_TOKEN
@@ -33,18 +33,18 @@ class searchScreen(tkinter.Tk):
         self.downloadingData = False #flag to help us track when we are downloading/ scraping Tweets
         self.buttonClicked = "" #when a button is clicked, set the title/data here
         self.configure(background="#889495")
-        inputFrame = tkinter.Frame(self, width=600, height=300)
-        inputFrame.configure(background="#889495")
+        self.inputFrame = tkinter.Frame(self, width=600, height=300)
+        self.inputFrame.configure(background="#889495")
         self.userEntry = tkinter.StringVar()
-        tkinter.Label(inputFrame, text="Search for a hashtag or paste a link to a tweet", background="#889495", font=("Helvetica", 20) ).pack(pady=10)
-        self.searchBox = tkinter.Entry(inputFrame, width=50, textvariable=self.userEntry, highlightbackground="#4A474C",  background="#4A474C", fg="white", font=("Helvetica", 20))
+        tkinter.Label(self.inputFrame, text="Search for a hashtag or paste a link to a tweet", background="#889495", font=("Helvetica", 20) ).pack(pady=10)
+        self.searchBox = tkinter.Entry(self.inputFrame, width=50, textvariable=self.userEntry, highlightbackground="#4A474C",  background="#4A474C", fg="white", font=("Helvetica", 20))
         self.searchBox.pack(pady=5)
-        tkinter.Button(inputFrame, text="Search", width=10, height=2, command=self.searchForTweet).pack()
+        tkinter.Button(self.inputFrame, text="Search", width=10, height=2, command=self.searchForTweet).pack()
 
         self.openedWindows = set() #store current windows in here.
 
         self.inputMessageBox = None # will have info from the state of a users input
-        inputFrame.pack()
+        self.inputFrame.pack()
 
         exampleFrame = tkinter.Frame(self, width=600, height=300)
         exampleFrame.configure(background="#889495") # set the background to the same as body
@@ -131,6 +131,7 @@ class searchScreen(tkinter.Tk):
 if __name__ == "__main__":
     ui = searchScreen()
     ui.mainloop()
+
 
 
     
