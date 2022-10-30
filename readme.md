@@ -1,4 +1,6 @@
-# Important Nodes
+# Notable Nodes
+
+This project is designed to illustrate the spread of information about a particular topic on twitter
 
 ## Running the entire Project
 
@@ -34,3 +36,4 @@ The Project Proposal is `williamProposal15112.pdf`
 - [ ] Implement page rank with networkX
 - [ ] Implement Djikstra's algorithm
 - [ ] Find way to display these results on the screen
+- [ ] Add EC2 script that will be used to analyze the tweets

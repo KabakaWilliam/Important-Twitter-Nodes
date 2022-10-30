@@ -1,6 +1,6 @@
 import tkinter
-from tkcalendar import Calendar, DateEntry
 from UI.helpers import isValidTweetUrl
+from TweetAnalysis.graphing import processTweetsFromPath
 from processTweets import twitterSpider 
 from settings import API_KEY, API_KEY_SECRET, API_TOKEN_SECRET,API_ACCESS_TOKEN
 
@@ -11,9 +11,11 @@ accessSecret = API_TOKEN_SECRET
 
 
 class AnalysisWindow(tkinter.Toplevel):
-    def __init__(self, parent, YE=False, HOTD=False, FIFA=False, searchTitle=""):
+    def __init__(self, PATH, parent, YE=False, HOTD=False, FIFA=False, searchTitle=""):
+
         super().__init__()
-        self.geometry('900x400')
+        self.geometry('900x500')
+        self.PATH = PATH
         if YE == True:
             self.title("Kanye Twitter Analysis ")
         elif HOTD == True:
@@ -23,11 +25,43 @@ class AnalysisWindow(tkinter.Toplevel):
         else:
             self.title(searchTitle + "Analysis" )
 
+        # initialise top users from pageRankData here
+        tweetGraph, prSummary = processTweetsFromPath(self.PATH)
+        # return a list of top 10 user nodes
+        topUsers = prSummary["topNodes"].keys()
+        topUsers = list(topUsers)
+        topUsersVar = tkinter.StringVar(value = topUsers)
+        
+        self.mainFrame = tkinter.Frame(self, width=900,height=500)
+        self.TopUserFrame = tkinter.Frame(self.mainFrame, width=900,height=200) 
+        tkinter.Label(self.TopUserFrame, text="Top Users").grid(row=0, column=0)
+        
+        self.userListContainer = tkinter.Frame(self.TopUserFrame, width=900, height=200)
+        self.userListWidget = tkinter.Listbox(self.userListContainer, listvariable=topUsersVar, width=900, highlightthickness=0)
+        self.userListWidget.pack()
+        self.userListContainer.grid(row=1, column = 0)
+        self.TopUserFrame.pack()
+        self.GraphsFrameContainer = tkinter.Frame(self.mainFrame, width=900,height=200, highlightthickness=3)
+        tkinter.Label(self.GraphsFrameContainer, text="Recommended Graphs").grid(row=1, column=0) 
+
+        self.mainGraphContainer = tkinter.Frame(self.GraphsFrameContainer, width=900, height=200, highlightbackground="blue", highlightthickness=3) 
+        self.mainGraphContainer.grid(row=2, column=0)
+
+        self.GraphsFrameContainer.pack()
+
+
+        #use subgraph here. return relevant graphs with nodes in the top 10 page rank list. on click, expand menu
+        self.mainFrame.pack()
+
+
+
 class searchScreen(tkinter.Tk):
     # will have a search box in which you can place a link to a tweet or use a hashtag
     # color pallete: foreground: #4A474C, background: #889495
     def __init__(self):
         super().__init__()
+        self.loading = False #A variabel to intialize the loading state
+
         self.geometry("800x600")
         self.title("Notable Nodes")
         self.downloadingData = False #flag to help us track when we are downloading/ scraping Tweets
@@ -57,25 +91,27 @@ class searchScreen(tkinter.Tk):
         self.HOTD_BUTTON = tkinter.Button(exampleFrame, text="House of The Dragon", width=20, height=5, command=self.openHOTDAnalysisWindow).grid(column=1, row=1, padx=10)
         self.WORLD_CUP_BUTTON = tkinter.Button(exampleFrame, text="Fifa World Cup", width=20, height=5,command=self.openFIFAAnalysisWindow).grid(column=2, row=1, padx=10)
         exampleFrame.pack()
+
+        self.fileCache = dict() # cache for openedDataSets
     
     def openKanyeAnalysisWindow(self):
         #Will prevent multiple windows from opening
         if "YE" not in self.openedWindows:
-            analysisWindow = AnalysisWindow(self, YE=True)
+            analysisWindow = AnalysisWindow(PATH="dataSets/Kanye/Kanye.csv",parent = self, YE=True)
             self.openedWindows.add("YE") #add window to set. 
             analysisWindow.protocol("WM_DELETE_WINDOW", lambda selectedDataset="YE", analysisWindow=analysisWindow : self.removeWindow(selectedDataset, analysisWindow))
 
 
     def openHOTDAnalysisWindow(self):
         if "HOTD" not in self.openedWindows:
-            analysisWindow = AnalysisWindow(self, HOTD=True)
+            analysisWindow = AnalysisWindow(PATH="dataSets/HouseOfTheDragon/HouseOfTheDragon2.csv",parent = self, HOTD=True)
             self.openedWindows.add("HOTD") #add window to set. 
             analysisWindow.protocol("WM_DELETE_WINDOW", lambda selectedDataset="HOTD", analysisWindow=analysisWindow : self.removeWindow(selectedDataset, analysisWindow))
 
 
     def openFIFAAnalysisWindow(self):
         if "FIFA" not in self.openedWindows:
-            analysisWindow = AnalysisWindow(self, FIFA=True)
+            analysisWindow = AnalysisWindow(PATH=f'dataSets/worldCup/worldCup.csv',parent = self, FIFA=True)
             self.openedWindows.add("FIFA") #add window to set. 
             analysisWindow.protocol("WM_DELETE_WINDOW", lambda selectedDataset="FIFA", analysisWindow=analysisWindow : self.removeWindow(selectedDataset, analysisWindow))
     
@@ -85,11 +121,12 @@ class searchScreen(tkinter.Tk):
         analysisWindow.destroy()
 
     
-    def openAnalysisWindow(self, windowTitle):
-        analysisWindow = AnalysisWindow(self, searchTitle=windowTitle)
+    def openAnalysisWindow(self, windowTitle, PATH):
+        analysisWindow = AnalysisWindow(PATH=PATH, parent= self, searchTitle=windowTitle)
 
     
     def searchForTweet(self):
+        self.loading = True # set the loading to True
         searchTerm = self.userEntry.get()
         # check if url or hashtag
 
@@ -110,8 +147,10 @@ class searchScreen(tkinter.Tk):
             spiderResponse = spider.fetchTweets() 
             print("spiderResponse :", spiderResponse)
             if spiderResponse["success"] == True:
-                PATH = spiderResponse["path"]
-                self.openAnalysisWindow(searchTerm)
+                PATH = spiderResponse["path"] #Filepath to the saved CSV FILE
+                self.loading = False #loading changed to False
+                self.fileCache[searchTerm] = PATH
+                self.openAnalysisWindow(searchTerm, PATH)
             else:
                 # way to visually inform user and developer of an error
                 print("error returning spider response")
@@ -119,6 +158,7 @@ class searchScreen(tkinter.Tk):
                 # red border to signal something has gone wrong
                 self.inputMessageBox = tkinter.Message(self, text = "Something went wrong downloading tweets")
                 self.inputMessageBox.pack()
+                self.loading = False #loading changed to False
 
         else:
             print("insert valid tweetURL or hashtag:", input)
@@ -127,6 +167,7 @@ class searchScreen(tkinter.Tk):
             # initialize message box at this point
             self.inputMessageBox = tkinter.Message(self, text = "insert valid tweetURL or hashtag")
             self.inputMessageBox.pack()
+            self.loading = False #loading changed to False
 
 if __name__ == "__main__":
     ui = searchScreen()

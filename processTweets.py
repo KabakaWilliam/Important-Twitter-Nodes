@@ -120,6 +120,9 @@ if __name__ == '__main__':
         # when run as a solo module, you can search for a tweet from the terminal
         print("Input a hashTag  or term to search twitter for")
         searchTerm = input()
+        if searchTerm[-1] == "%":
+            print("Default Tweet limit Bypassed")
+
 
         print("Input a  date to search from in the form yyyy--mm--dd")
         searchTimeFrame = input()
@@ -128,16 +131,17 @@ if __name__ == '__main__':
         tweetNum = input()
         tweetNum = int(tweetNum)
 
-        # # i am going to limit this to 50 for performance reasons 
-        # if tweetNum >= 51:
-        #     print("================================================")
-        #     print("================================================")
-        #     print("Hmmm 😗😗😗 ...")
-        #     print("Slow down buddy 🐌.")
-        #     print("My overlord has instructed me to return only 50 tweets 😗")
-        #     print("================================================")
-        #     print("================================================")
-        #     tweetNum = 50
+        # i am going to limit this to 50 for performance reasons 
+        # % is the secret key to bypass the api limit
+        if tweetNum >= 51 and searchTerm[-1] != "%":
+            print("================================================")
+            print("================================================")
+            print("Hmmm 😗😗😗 ...")
+            print("Slow down buddy 🐌.")
+            print("My overlord has instructed me to return only 50 tweets 😗")
+            print("================================================")
+            print("================================================")
+            tweetNum = 50
 
 
         # use keys and credentials from twitter API
@@ -145,6 +149,10 @@ if __name__ == '__main__':
         consumerSecret = API_KEY_SECRET
         accessKey = API_ACCESS_TOKEN
         accessSecret = API_TOKEN_SECRET
+
+        #remove the % character at the end of the string
+        if searchTerm[-1] == "%":
+            searchTerm = searchTerm[:-1]
 
         spider = twitterSpider(consumerKey, consumerSecret, accessKey, accessSecret, searchTerm, searchTimeFrame, tweetNum)
 

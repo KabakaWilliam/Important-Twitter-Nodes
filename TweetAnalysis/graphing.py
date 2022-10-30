@@ -2,17 +2,13 @@ import pandas as pd
 import networkx as nx
 from collections import Counter 
 import matplotlib.pyplot as plt
+from os import listdir
 
-# ref: https://stackoverflow.com/questions/33998740/error-in-reading-a-csv-file-in-pandascparsererror-error-tokenizing-data-c-err#:~:text=test_error.csv%27%2C-,lineterminator%3D%27%5Cn,-%27)
-data = pd.read_csv("dataSets/togashi/togashi.csv", lineterminator='\n') #add lineterminator to remove bug with large csv files 
+def loadDataset(dataSetPath):
+    data = pd.read_csv(dataSetPath, lineterminator='\n')
+    tweet = data[['location', 'retweetcount', 'text', 'hashtags', 'username', "tweetID"]]
+    return tweet
 
-user = data[['username', 'description', 'following',
- 'followers', 'totaltweets', 'accountCreatedAt', 'accountID', "tweetID"]]
-tweet = data[['location', 'retweetcount', 'text',
- 'hashtags', 'username', "tweetID"]]
-
-user.drop_duplicates(subset="username",inplace=True)
-user.username.duplicated().unique()
 
 def getMentionedUsers(s):
     foundAt= False
@@ -45,7 +41,7 @@ def createAdjecencyDictionary(tweetDataframe):
                 if e=='@':
                     store += e
 
-            adjecencyDictionary[tweetDataframe["username"][ind]] = getMentionedUsers(tweet['text'][ind])
+            adjecencyDictionary[tweetDataframe["username"][ind]] = getMentionedUsers(tweetDataframe['text'][ind])
     return adjecencyDictionary
 
 def convertDictionaryToGraph(adjecencyDictionary):
@@ -79,16 +75,42 @@ def runMainGraphProcessing(tweet):
     prSummary = getPageRankSummary(pageRankData)
     return [tweetGraph, prSummary]
 
+def drawSubGraphs(tweetGraph, graphVisible=True):
+    # function will allow us to draw all subgraphs.
+    # need to add a way to draw title of graph/community
+    # we will also need to tank the graphs with the highest connectivity
+    # can be plugged into the page rank calcultation.
+    # have a fucntion to draw all subgraphs or a few graphs
+    tweetSubgraphs = []
+    for c in nx.connected_components(tweetGraph):
+        g = tweetGraph.subgraph(c)
+        tweetSubgraphs.append(g)
+        if graphVisible == True:
+            nx.draw_spring(g, node_color="r", with_labels=True, node_size=100, linewidths=0.25)
+            plt.show()
+    return tweetSubgraphs
+
 def drawGraph(tweetGraph):
     if tweetGraph.number_of_nodes() <= 400:
         nx.draw_spring(tweetGraph, node_color="r", with_labels = True, node_size=100, linewidths=0.25, font_size=5)
         plt.show()
     else:
-        return False
+        tweetGraph = nx.to_undirected(tweetGraph)
+        mySubGraphs = drawSubGraphs(tweetGraph, graphVisible=False)
+        print(len(mySubGraphs))
+        print(mySubGraphs)
+
+
+# main function to be exported to the UI to do the processing
+def processTweetsFromPath(PATH):
+    print("selected Path:", PATH)
+    tweet = loadDataset(PATH)
+    tweetGraph, prSummary = runMainGraphProcessing(tweet)
+    return tweetGraph, prSummary
 
 
 
-tweetGraph, prSummary = runMainGraphProcessing(tweet)
+# tweetGraph, prSummary = runMainGraphProcessing(tweet)
 # print(tweetGraph["HOTDsource"])
 
 
@@ -114,18 +136,9 @@ tweetGraph, prSummary = runMainGraphProcessing(tweet)
 #         plt.title('Step %s\nEdge %s Deleted'%(i, edgeToDelete))
 #         plt.show()
 
-drawGraph(tweetGraph)
+# drawGraph(tweetGraph)
 
-def drawSubGraphs(tweetGraph):
-    # function will allow us to draw all subgraphs.
-    # need to add a way to draw title of graph/community
-    # we will also need to tank the graphs with the highest connectivity
-    # can be plugged into the page rank calcultation.
-    # have a fucntion to draw all subgraphs or a few graphs
-    for c in nx.connected_components(tweetGraph):
-        g = tweetGraph.subgraph(c)
-        nx.draw_spring(g, node_color="r", with_labels=True, node_size=100, linewidths=0.25)
-        plt.show()
+
 
 
 
@@ -152,3 +165,35 @@ def getTopNodes(tweetDataframe):
 
 # edge betweeness
 # https://www.youtube.com/watch?v=F4RVBAGJcFYx
+
+
+if __name__ == "__main__":
+    print("Choose a dataset you want to use")
+    currentDatasets = listdir("dataSets")
+
+    
+    print(currentDatasets)
+
+    datasetInput = input("Enter a dataset: ")
+    datasetInput = str(datasetInput)
+    if datasetInput in currentDatasets:
+        # fotmat the input in the right path format
+        datasetInput = "dataSets" + "/" + datasetInput + "/" + datasetInput + ".csv"
+        data = pd.read_csv(datasetInput, lineterminator='\n') #add lineterminator to remove bug with large csv files 
+
+        user = data[['username', 'description', 'following',
+        'followers', 'totaltweets', 'accountCreatedAt', 'accountID', "tweetID"]]
+        tweet = data[['location', 'retweetcount', 'text',
+        'hashtags', 'username', "tweetID"]]
+
+        user.drop_duplicates(subset="username",inplace=True)
+        user.username.duplicated().unique()
+
+        tweetGraph, prSummary = runMainGraphProcessing(tweet)
+        drawGraph(tweetGraph)
+        print("Graph drawn to screen")
+    else:
+        print("error typing in dataset or dataset does not exist")
+
+
+
