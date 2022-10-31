@@ -1,5 +1,5 @@
 import tkinter
-from UI.helpers import isValidTweetUrl
+from UI.helpers import initialiseAnalysisWindow, isValidTweetUrl
 from TweetAnalysis.graphing import processTweetsFromPath
 from processTweets import twitterSpider 
 from settings import API_KEY, API_KEY_SECRET, API_TOKEN_SECRET,API_ACCESS_TOKEN
@@ -10,6 +10,7 @@ accessKey = API_ACCESS_TOKEN
 accessSecret = API_TOKEN_SECRET
 
 
+# This class is used to create a new window that displays the analysis of the tweets.
 class AnalysisWindow(tkinter.Toplevel):
     def __init__(self, PATH, parent, YE=False, HOTD=False, FIFA=False, searchTitle=""):
 
@@ -18,40 +19,18 @@ class AnalysisWindow(tkinter.Toplevel):
         self.PATH = PATH
         if YE == True:
             self.title("Kanye Twitter Analysis ")
+            self.searchTerm = "Kanye"
         elif HOTD == True:
             self.title("House of the Dragon Twitter Analysis ")
+            self.searchTerm = "HOTD"
         elif FIFA == True:
             self.title("World Cup Twitter Analysis ")
+            self.searchTerm = "FIFA"
         else:
             self.title(searchTitle + "Analysis" )
+            self.searchTerm = searchTitle
 
-        # initialise top users from pageRankData here
-        tweetGraph, prSummary = processTweetsFromPath(self.PATH)
-        # return a list of top 10 user nodes
-        topUsers = prSummary["topNodes"].keys()
-        topUsers = list(topUsers)
-        topUsersVar = tkinter.StringVar(value = topUsers)
-        
-        self.mainFrame = tkinter.Frame(self, width=900,height=500)
-        self.TopUserFrame = tkinter.Frame(self.mainFrame, width=900,height=200) 
-        tkinter.Label(self.TopUserFrame, text="Top Users").grid(row=0, column=0)
-        
-        self.userListContainer = tkinter.Frame(self.TopUserFrame, width=900, height=200)
-        self.userListWidget = tkinter.Listbox(self.userListContainer, listvariable=topUsersVar, width=900, highlightthickness=0)
-        self.userListWidget.pack()
-        self.userListContainer.grid(row=1, column = 0)
-        self.TopUserFrame.pack()
-        self.GraphsFrameContainer = tkinter.Frame(self.mainFrame, width=900,height=200, highlightthickness=3)
-        tkinter.Label(self.GraphsFrameContainer, text="Recommended Graphs").grid(row=1, column=0) 
-
-        self.mainGraphContainer = tkinter.Frame(self.GraphsFrameContainer, width=900, height=200, highlightbackground="blue", highlightthickness=3) 
-        self.mainGraphContainer.grid(row=2, column=0)
-
-        self.GraphsFrameContainer.pack()
-
-
-        #use subgraph here. return relevant graphs with nodes in the top 10 page rank list. on click, expand menu
-        self.mainFrame.pack()
+        initialiseAnalysisWindow(self)
 
 
 
@@ -111,7 +90,7 @@ class searchScreen(tkinter.Tk):
 
     def openFIFAAnalysisWindow(self):
         if "FIFA" not in self.openedWindows:
-            analysisWindow = AnalysisWindow(PATH=f'dataSets/worldCup/worldCup.csv',parent = self, FIFA=True)
+            analysisWindow = AnalysisWindow(PATH=f'dataSets/world cup/world cup.csv',parent = self, FIFA=True)
             self.openedWindows.add("FIFA") #add window to set. 
             analysisWindow.protocol("WM_DELETE_WINDOW", lambda selectedDataset="FIFA", analysisWindow=analysisWindow : self.removeWindow(selectedDataset, analysisWindow))
     

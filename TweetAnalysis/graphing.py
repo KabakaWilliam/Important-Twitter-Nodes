@@ -2,15 +2,29 @@ import pandas as pd
 import networkx as nx
 from collections import Counter 
 import matplotlib.pyplot as plt
-from os import listdir
+import os
+import pickle
+
 
 def loadDataset(dataSetPath):
+    """
+    It reads in the data from the csv file and returns a dataframe with the columns we want
+    
+    :param dataSetPath: The path to the dataset
+    :return: A dataframe with the columns location, retweetcount, text, hashtags, username, and tweetID
+    """
     data = pd.read_csv(dataSetPath, lineterminator='\n')
     tweet = data[['location', 'retweetcount', 'text', 'hashtags', 'username', "tweetID"]]
     return tweet
 
 
 def getMentionedUsers(s):
+    """
+    It takes a string as input and returns a list of all the users mentioned in the string
+    
+    :param s: the string to be parsed
+    :return: A list of all the users mentioned in the tweet.
+    """
     foundAt= False
     mentioned = []
     store = ""
@@ -28,6 +42,16 @@ def getMentionedUsers(s):
 
 
 def createAdjecencyDictionary(tweetDataframe):
+    """
+    This function takes in a dataframe of tweets and returns a dictionary of the form {tweetAuthor1:
+    [@user1, @user2, @user3, @user4, @user5, @user6]}
+    
+    The function iterates through the dataframe and checks if the tweet contains a mention. If it does,
+    it stores the tweet author and the mentioned users in a dictionary
+    
+    :param tweetDataframe: the dataframe that contains the tweets
+    :return: A dictionary of the form {tweetAuthor1: [@user1, @user2, @user3, @user4, @user5, @user6]}
+    """
     # will build adjecency dictionary in the form:
     # {tweetAuthor1: [@user1, @user2, @user3, @user4, @user5, @user6]}
     # create graph of tweet author here.
@@ -45,17 +69,39 @@ def createAdjecencyDictionary(tweetDataframe):
     return adjecencyDictionary
 
 def convertDictionaryToGraph(adjecencyDictionary):
+    """
+    This function takes in a dictionary of tweet authors and their mentions and returns a directed graph
+    of tweet authors and their mentions.
+    
+    :param adjecencyDictionary: a dictionary of the form {author: [mentions]}
+    :return: A directed graph of the tweet author to their mentions.
+    """
     # create graph of tweet author to their mentions. 
     # .to_directed converts our graph to a directed graph
     tweetGraph = nx.Graph(adjecencyDictionary).to_directed()
     return tweetGraph
 
 def applyPageRankToGraph(tweetGraph):
+    """
+    It takes a graph and returns a dictionary of the nodes in the graph and their pageRank scores
+    
+    :param tweetGraph: the graph we're applying pageRank to
+    :return: A dictionary of nodes and their pageRank values
+    """
     # apply pageRank to graph. gives us most linked to nodes
     pageRankData = nx.pagerank(tweetGraph, alpha=0.85, weight='weight')
     return pageRankData
 
 def getPageRankSummary(pageRankData, importantNodeCount=10):
+    """
+    The function takes in a dictionary of nodes and their page rank values, and returns a dictionary of
+    the most important nodes and their page rank values
+    
+    :param pageRankData: This is the data that we want to summarize
+    :param importantNodeCount: The number of nodes you want to return in the summary, defaults to 10
+    (optional)
+    :return: The most influential node and the top nodes with the highest values.
+    """
     # store all important top level data in a dictionary
     summaryDict = dict()
     mostInfluentialNode = max(pageRankData, key=pageRankData.get)
@@ -69,40 +115,117 @@ def getPageRankSummary(pageRankData, importantNodeCount=10):
     return summaryDict
 
 def runMainGraphProcessing(tweet):
+    """
+    It takes a tweet, creates an adjacency dictionary, converts that dictionary to a graph, applies the
+    PageRank algorithm to the graph, and returns the graph and a summary of the PageRank data.
+    
+    :param tweet: The tweet to be processed
+    :return: A list of two items. The first item is the graph object, the second item is a list of
+    tuples.
+    """
     tweetAdjDictionary = createAdjecencyDictionary(tweet)
     tweetGraph = convertDictionaryToGraph(tweetAdjDictionary)
     pageRankData = applyPageRankToGraph(tweetGraph)
     prSummary = getPageRankSummary(pageRankData)
     return [tweetGraph, prSummary]
 
-def drawSubGraphs(tweetGraph, graphVisible=True):
+def saveFigureLocally(figure, topUsers, count, searchTerm):
+    searchTerm = searchTerm.split("/")[1]
+    PATH = f"PickleData/{searchTerm}"
+    # get name for the search term. It has to be separeted from the path
+    # Check if it the directory does not exist.
+    # if it does not, make the directory
+    if not os.path.exists(PATH):
+        os.makedirs(PATH)  
+        pickle.dump(figure, open(f'PickleData/{searchTerm}/{topUsers[count]}.fig.pickle', 'wb'))
+
+def drawSubGraphs(tweetGraph, prSummary, searchTerm, graphVisible=True):
+    """
+    This function takes a graph and returns a list of subgraphs
+    
+    :param tweetGraph: the graph we want to draw
+    :param graphVisible: if True, will draw the subgraphs. If False, will not draw the subgraphs,
+    defaults to True (optional)
+    :return: A list of subgraphs
+    :param prSummary:  a summary of the page Rank data
+    :param searchTerm:  the search term we used
+    """
     # function will allow us to draw all subgraphs.
     # need to add a way to draw title of graph/community
     # we will also need to tank the graphs with the highest connectivity
     # can be plugged into the page rank calcultation.
     # have a fucntion to draw all subgraphs or a few graphs
-    tweetSubgraphs = []
+    importantTweetSubgraphs = []
+    # return a list of top 10 user nodes
+    topUsers = prSummary["topNodes"].keys()
+    topUsers = list(topUsers)
+
+    # connected_components returns a list of all connected nodes and edges
+    # For this graph we know that each important node(ranked by page rank) has
+    # to be connected to at least one node by an edge. We can then loop through
+    # all connected_components, check if they have any important nodes and then 
+    # create a subgraph which we append to importantTweetSubgraphs and then draw
+    # to the screen
     for c in nx.connected_components(tweetGraph):
         g = tweetGraph.subgraph(c)
-        tweetSubgraphs.append(g)
-        if graphVisible == True:
-            nx.draw_spring(g, node_color="r", with_labels=True, node_size=100, linewidths=0.25)
-            plt.show()
-    return tweetSubgraphs
+        # importantTweetSubgraphs.append(g)
+        
+        # look for subgraph that contain most important users in the graph
+        for user in topUsers:
+            if user in g:
+                importantTweetSubgraphs.append(g) 
 
-def drawGraph(tweetGraph):
+    # way to draw the subgraphs for each improtant page rank element
+
+    # ******NOTE******:
+    # can be improved later by storing the graphs to a file which we can
+    # read to store and visualize
+    count = 0 #we will use this counter to get the name for the current user in topUsers
+    for g in importantTweetSubgraphs:
+
+        if graphVisible == True:    
+            fig = nx.draw_spring(g, node_shape="s", with_labels=True, node_size=100, linewidths=0.25,
+            bbox=dict(facecolor="skyblue", edgecolor='black', boxstyle='round,pad=0.2'))
+            plt.show()
+            saveFigureLocally(fig, topUsers, count, searchTerm)
+            count += 1
+    return importantTweetSubgraphs
+
+        
+
+
+def drawGraph(tweetGraph, prSummary, searchTerm):
+    """
+    If the graph has less than 400 nodes, draw it with the spring layout. Otherwise, draw the subgraphs
+    
+    :param tweetGraph: the graph we're drawing
+    :param prSummary: a summary of the page Rank data
+    """
+    # return a list of top 10 user nodes
+    topUsers = prSummary["topNodes"].keys()
+    topUsers = list(topUsers)
+
     if tweetGraph.number_of_nodes() <= 400:
-        nx.draw_spring(tweetGraph, node_color="r", with_labels = True, node_size=100, linewidths=0.25, font_size=5)
+        figure = nx.draw_spring(tweetGraph, with_labels = True, node_size=100, linewidths=0.25, font_size=15, node_shape="s"
+        ,bbox=dict(facecolor="skyblue", edgecolor='black', boxstyle='round,pad=0.2'))
+        saveFigureLocally(figure, topUsers, 0, searchTerm)
         plt.show()
     else:
         tweetGraph = nx.to_undirected(tweetGraph)
-        mySubGraphs = drawSubGraphs(tweetGraph, graphVisible=False)
-        print(len(mySubGraphs))
-        print(mySubGraphs)
+        mySubGraphs = drawSubGraphs(tweetGraph, prSummary, searchTerm, graphVisible=True) #can be graphVisible=False to prevent graphs from drawing
+
 
 
 # main function to be exported to the UI to do the processing
-def processTweetsFromPath(PATH):
+def processTweetsFromPath(PATH, searchTerm):
+    """
+    It takes a path to a file, loads the file, runs the main graph processing function, and returns
+    the graph and a summary of the graph
+    
+    :param PATH: the path to the dataset
+    :return: The return value is a tuple of two elements. The first element is the graph object, the
+    second element is a summary of the graph.
+    """
     print("selected Path:", PATH)
     tweet = loadDataset(PATH)
     tweetGraph, prSummary = runMainGraphProcessing(tweet)
@@ -143,6 +266,13 @@ def processTweetsFromPath(PATH):
 
 
 def getTopNodes(tweetDataframe):
+    """
+    We create a graph of the tweet authors and their mentions, then apply the PageRank algorithm to the
+    graph to find the most influential tweet authors
+    
+    :param tweetDataframe: the dataframe of tweets that you want to analyze
+    :return: A dictionary of the top 10 nodes with the highest pageRank values.
+    """
     # turn tweet dataframe into dictionary
     tweetAdjDictionary = createAdjecencyDictionary(tweetDataframe)
 
@@ -168,11 +298,15 @@ def getTopNodes(tweetDataframe):
 
 
 if __name__ == "__main__":
+    print(" ")
     print("Choose a dataset you want to use")
-    currentDatasets = listdir("dataSets")
+    print(" ")
 
-    
+    currentDatasets = os.listdir("dataSets")
+
+    print("************************************")
     print(currentDatasets)
+    print("************************************")
 
     datasetInput = input("Enter a dataset: ")
     datasetInput = str(datasetInput)
@@ -190,10 +324,16 @@ if __name__ == "__main__":
         user.username.duplicated().unique()
 
         tweetGraph, prSummary = runMainGraphProcessing(tweet)
-        drawGraph(tweetGraph)
+        drawGraph(tweetGraph, prSummary, datasetInput)
         print("Graph drawn to screen")
     else:
         print("error typing in dataset or dataset does not exist")
 
 
 
+
+
+
+# To improve interactivity, use the click library;
+# https://click.palletsprojects.com/en/8.1.x/
+#  https://dev.to/cotter/how-to-make-an-interactive-todo-list-cli-using-python-with-an-easy-login-mechanism-595h

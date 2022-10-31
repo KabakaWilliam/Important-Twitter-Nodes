@@ -1,8 +1,40 @@
 # Notable Nodes
 
-This project is designed to illustrate the spread of information about a particular topic on twitter
+This project is designed to illustrate the spread of information about a particular topic on twitter. Currently the app can be run in interactive and terminal mode
 
-## Running the entire Project
+## Running the entire Project in terminal mode
+
+### Install dependencies
+
+```bash
+#Install required dependencies then run app
+$ pip3 install -r requirements.txt
+```
+
+### Run the tweet downloading module
+
+```bash
+$ python3 app.py terminal
+
+```
+
+### Run the offline module
+
+```bash
+# tweets wont be downloaded
+$ python3 app.py terminal offline
+```
+
+### NOTE: To bypass the 50 tweet limit
+
+```bash
+    input a search term
+    $ example%
+    #add the % character to bypass the 50 tweet limit
+
+```
+
+## Running the entire Project in interactive mode
 
 ```bash
 #Install required dependencies then run app
@@ -27,13 +59,13 @@ The Project Proposal is `williamProposal15112.pdf`
 
 ### TO DO's:
 
-- [ ] Import twitter spider into the frontend
+- [] Add EC2 script that will be used to analyze the tweets
 - [ ] Add a date input widget
-- [ ] Create a loading indicator for when someone submits a url or hastag on the UI
-- [ ] Impelment regex to extract twitter data for a tweet from a user inputed URL
-- [ ] Port networkX code into main UI.
-- [ ] Introduce filters onto the main tkinter search UI. These should be fed to the twitter spider
-- [ ] Implement page rank with networkX
-- [ ] Implement Djikstra's algorithm
-- [ ] Find way to display these results on the screen
-- [ ] Add EC2 script that will be used to analyze the tweets
+- [ ] Unpickle the graphs when the buttons in the UI are clicked
+- [ ] Improve the interactive mode with an external library
+
+- [x] Import twitter spider into the frontend
+- [x] Impelment regex to extract twitter data for a tweet from a user inputed URL
+- [x] Port networkX code into main UI.
+- [x] Implement page rank with networkX
+- [x] Find way to display these results on the screen

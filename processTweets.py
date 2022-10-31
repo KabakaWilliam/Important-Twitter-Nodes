@@ -37,6 +37,7 @@ class twitterSpider():
 		"accountCreatedAt",
 		"tweetID" 
     ])
+        print("LOADING ...") #Will signify that tweets have started loading
     # .Cursor() will search throught twitter and automatically paginate the results
     # so that we do not have to manually fetch more tweets
         tweets = tweepy.Cursor(self.api.search_tweets, self.searchTerm,
