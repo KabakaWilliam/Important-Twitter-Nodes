@@ -3,11 +3,13 @@
 # Assignment: 15-112 FINAL PROJECT
 # Project Name: Notable Nodes
 # Description: Identify the way information flows on twitter and visualzie it
+# Total line Count: 851 
+# Lines: (app.py ==> 50, UI.py ==> 276, graphing.py ==> 366, processTweets.py ==> 160 )
 
 import sys
 import os
-from UI.uiShell import searchScreen
 
+from UI import launchUI, App
 
 # This is the main function that runs the app. It checks if the user is running the app in interactive
 # mode or terminal mode.
@@ -21,8 +23,13 @@ if __name__ == "__main__":
 
     args = sys.argv[1:] #use index 1 to cut out the initial argument which is the script name
     if "terminal" not in args:
-        ui = searchScreen()
-        ui.mainloop()
+        
+        launchApp = launchUI()
+        launchApp.mainloop()
+        
+        app = App()
+        app.refreshDatasetDirectory()
+        app.mainloop()
     
     # will run the app in terminal mode without the ability to download tweets
     elif "offline" in args:

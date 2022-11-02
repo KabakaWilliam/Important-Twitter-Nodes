@@ -59,7 +59,7 @@ The Project Proposal is `williamProposal15112.pdf`
 
 ### TO DO's:
 
-- [] Add EC2 script that will be used to analyze the tweets
+- [ ] Add EC2 script that will be used to analyze the tweets
 - [ ] Add a date input widget
 - [ ] Unpickle the graphs when the buttons in the UI are clicked
 - [ ] Improve the interactive mode with an external library

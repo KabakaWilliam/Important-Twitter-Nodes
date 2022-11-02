@@ -1,6 +1,7 @@
 import re
 import tkinter
-
+import pickle
+import matplotlib.pyplot as plt
 from TweetAnalysis.graphing import processTweetsFromPath
 
 def isValidTweetUrl(url):
@@ -48,6 +49,12 @@ def initialiseAnalysisWindow(self):
 
     rightFrame = tkinter.Frame(self, width=500, height=400 )
     rightFrame.configure(background="#000000")
+    
+    file = open('/Users/wgl8723/Desktop/15-112/finalProject-Twitter/PickleData/HouseOfTheDragon/nielsen.fig.pickle', 'rb')
+
+    figure = pickle.load(file)
+    print("figure: ", figure)
+    plt.show()
 
     rightFrame.grid(row=1, column=1)
     for i in range(9):

@@ -4,6 +4,7 @@ from collections import Counter
 import matplotlib.pyplot as plt
 import os
 import pickle
+from PyInquirer import prompt
 
 
 def loadDataset(dataSetPath):
@@ -104,8 +105,10 @@ def getPageRankSummary(pageRankData, importantNodeCount=10):
     """
     # store all important top level data in a dictionary
     summaryDict = dict()
+    # NOTE: need to account for when there graph has no maximum nodes
+    # or rather, no nodes are linked
     mostInfluentialNode = max(pageRankData, key=pageRankData.get)
-    summaryDict["mostInfluentialNode"] = pageRankData[mostInfluentialNode] #store node with its value
+    summaryDict["mostInfluentialNode"] = {str(mostInfluentialNode): pageRankData[mostInfluentialNode]} #store node with its value
 
     #Counter will allow us to return max nodes with the highest values
     summaryDict["topNodes"] = dict(Counter(pageRankData).most_common(importantNodeCount))
@@ -129,7 +132,8 @@ def runMainGraphProcessing(tweet):
     prSummary = getPageRankSummary(pageRankData)
     return [tweetGraph, prSummary]
 
-def saveFigureLocally(figure, topUsers, count, searchTerm):
+def saveSubGraphLocally(figure, topUsers, count, searchTerm):
+
     searchTerm = searchTerm.split("/")[1]
     PATH = f"PickleData/{searchTerm}"
     # get name for the search term. It has to be separeted from the path
@@ -137,9 +141,12 @@ def saveFigureLocally(figure, topUsers, count, searchTerm):
     # if it does not, make the directory
     if not os.path.exists(PATH):
         os.makedirs(PATH)  
-        pickle.dump(figure, open(f'PickleData/{searchTerm}/{topUsers[count]}.fig.pickle', 'wb'))
+    print("figure in File :", figure)
+    # save the graph within the directory PickleData with format:
+    # PickleData/searchTerm/topUserNodeGraph.fig.pickle
+    pickle.dump(figure, open(f'PickleData/{searchTerm}/{topUsers[count]}.fig.pickle', 'wb'))
 
-def drawSubGraphs(tweetGraph, prSummary, searchTerm, graphVisible=True):
+def drawSubGraphs(tweetGraph, prSummary, searchTerm, graphVisible=True, download=True):
     """
     This function takes a graph and returns a list of subgraphs
     
@@ -183,41 +190,51 @@ def drawSubGraphs(tweetGraph, prSummary, searchTerm, graphVisible=True):
     count = 0 #we will use this counter to get the name for the current user in topUsers
     for g in importantTweetSubgraphs:
 
-        if graphVisible == True:    
-            fig = nx.draw_spring(g, node_shape="s", with_labels=True, node_size=100, linewidths=0.25,
-            bbox=dict(facecolor="skyblue", edgecolor='black', boxstyle='round,pad=0.2'))
+           
+        nx.draw_spring(g, node_shape="s", with_labels=True, node_size=100, linewidths=0.25,
+        bbox=dict(facecolor="skyblue", edgecolor='black', boxstyle='round,pad=0.2'))
+        if download == True:
+            saveSubGraphLocally(g, topUsers, count, searchTerm)
+        if graphVisible == True: 
             plt.show()
-            saveFigureLocally(fig, topUsers, count, searchTerm)
-            count += 1
+        count += 1
     return importantTweetSubgraphs
 
         
 
 
-def drawGraph(tweetGraph, prSummary, searchTerm):
+def drawGraph(tweetGraph, prSummary, searchTerm, download=True, graphVisible=True):
     """
     If the graph has less than 400 nodes, draw it with the spring layout. Otherwise, draw the subgraphs
     
     :param tweetGraph: the graph we're drawing
     :param prSummary: a summary of the page Rank data
+    :Optionalparam download: graph will have its pickle downloaded
+    :Optionalparam graphVisible: graph will be displayed
     """
     # return a list of top 10 user nodes
     topUsers = prSummary["topNodes"].keys()
     topUsers = list(topUsers)
 
+
     if tweetGraph.number_of_nodes() <= 400:
-        figure = nx.draw_spring(tweetGraph, with_labels = True, node_size=100, linewidths=0.25, font_size=15, node_shape="s"
+        nx.draw_spring(tweetGraph, with_labels = True, node_size=100, linewidths=0.25, font_size=15, node_shape="s"
         ,bbox=dict(facecolor="skyblue", edgecolor='black', boxstyle='round,pad=0.2'))
-        saveFigureLocally(figure, topUsers, 0, searchTerm)
-        plt.show()
+        if download == True: #done so we can draw graphs without pickling them
+            saveSubGraphLocally(tweetGraph, topUsers, 0, searchTerm)
+        if graphVisible == True:
+            plt.show()
     else:
         tweetGraph = nx.to_undirected(tweetGraph)
-        mySubGraphs = drawSubGraphs(tweetGraph, prSummary, searchTerm, graphVisible=True) #can be graphVisible=False to prevent graphs from drawing
+        if download == False: #allows us to view graphs from cache
+            mySubGraphs = drawSubGraphs(tweetGraph, prSummary, searchTerm, graphVisible=True, download=False) #can be graphVisible=False to prevent graphs from drawing
+        else:
+            mySubGraphs = drawSubGraphs(tweetGraph, prSummary, searchTerm, graphVisible=True, download=True) #can be graphVisible=False to prevent graphs from drawing
 
 
 
 # main function to be exported to the UI to do the processing
-def processTweetsFromPath(PATH, searchTerm):
+def processTweetsFromPath(PATH):
     """
     It takes a path to a file, loads the file, runs the main graph processing function, and returns
     the graph and a summary of the graph
@@ -288,6 +305,7 @@ def getTopNodes(tweetDataframe):
     return topNodes
 
 
+
 # rt and mention graph structure
 # ref: https://www.oreilly.com/library/view/mining-the-social/9781449394752/ch01s02.html
 
@@ -297,23 +315,25 @@ def getTopNodes(tweetDataframe):
 # https://www.youtube.com/watch?v=F4RVBAGJcFYx
 
 
-if __name__ == "__main__":
-    print(" ")
-    print("Choose a dataset you want to use")
-    print(" ")
-
+def main():
     currentDatasets = os.listdir("dataSets")
 
-    print("************************************")
-    print(currentDatasets)
-    print("************************************")
-
-    datasetInput = input("Enter a dataset: ")
-    datasetInput = str(datasetInput)
-    if datasetInput in currentDatasets:
-        # fotmat the input in the right path format
-        datasetInput = "dataSets" + "/" + datasetInput + "/" + datasetInput + ".csv"
-        data = pd.read_csv(datasetInput, lineterminator='\n') #add lineterminator to remove bug with large csv files 
+    questions = [
+        {
+            'type':  'list',
+            'name': 'user_option',
+            'message': 'Choose a data set',
+            'choices': currentDatasets
+        }
+    ]
+    
+    answers = prompt(questions)
+    # dataset cant be empty due to default datasets loaded in
+    if answers.get("user_option") in currentDatasets:
+        chosenDataset = answers.get("user_option")
+        datasetPath = "dataSets" + "/" + chosenDataset + "/" + chosenDataset + ".csv"
+        print(chosenDataset + " loaded")
+        data = pd.read_csv(datasetPath, lineterminator='\n') #add lineterminator to remove bug with large csv files 
 
         user = data[['username', 'description', 'following',
         'followers', 'totaltweets', 'accountCreatedAt', 'accountID', "tweetID"]]
@@ -324,11 +344,18 @@ if __name__ == "__main__":
         user.username.duplicated().unique()
 
         tweetGraph, prSummary = runMainGraphProcessing(tweet)
-        drawGraph(tweetGraph, prSummary, datasetInput)
+        drawGraph(tweetGraph, prSummary, datasetPath)
         print("Graph drawn to screen")
     else:
         print("error typing in dataset or dataset does not exist")
 
+
+
+
+
+
+if __name__ == "__main__":
+    main()
 
 
 

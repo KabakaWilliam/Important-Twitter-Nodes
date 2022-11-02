@@ -1,5 +1,25 @@
 .venv
 .env
+
+# folders
 datasets
 tests
 awsEC2
+app3.py
+UI
+
+#python files
+processing.ipynb
+
+
+
+# Pickles
+PickleData/Balenciaga
+PickleData/bobi
+PickleData/burger king
+PickleData/cats
+PickleData/elon musk
+PickleData/Kanye
+PickleData/museveni
+PickleData/prisma
+PickleData/TMI

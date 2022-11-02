@@ -3,6 +3,8 @@ from UI.helpers import initialiseAnalysisWindow, isValidTweetUrl
 from TweetAnalysis.graphing import processTweetsFromPath
 from processTweets import twitterSpider 
 from settings import API_KEY, API_KEY_SECRET, API_TOKEN_SECRET,API_ACCESS_TOKEN
+import pickle
+import os
 
 consumerKey = API_KEY
 consumerSecret = API_KEY_SECRET
@@ -31,6 +33,16 @@ class AnalysisWindow(tkinter.Toplevel):
             self.searchTerm = searchTitle
 
         initialiseAnalysisWindow(self)
+    
+    def openPickledFigure(self):
+        FIGPATH = f"PickleData/{self.searchTerm}"
+        allPickledFiles = os.listdir(FIGPATH) #will return a list of all matplotlib figures's filenames
+        figures = []
+
+
+
+        # with open(self.
+
 
 
 
