@@ -134,7 +134,11 @@ def runMainGraphProcessing(tweet):
 
 def saveSubGraphLocally(figure, topUsers, count, searchTerm):
 
-    searchTerm = searchTerm.split("/")[1]
+    try:
+        searchTerm = searchTerm.split("/")[1]
+    except:
+        # incase file is directly called from the UI
+        searchTerm = searchTerm
     PATH = f"PickleData/{searchTerm}"
     # get name for the search term. It has to be separeted from the path
     # Check if it the directory does not exist.
@@ -145,6 +149,7 @@ def saveSubGraphLocally(figure, topUsers, count, searchTerm):
     # save the graph within the directory PickleData with format:
     # PickleData/searchTerm/topUserNodeGraph.fig.pickle
     pickle.dump(figure, open(f'PickleData/{searchTerm}/{topUsers[count]}.fig.pickle', 'wb'))
+    print("pickle created at:", f'PickleData/{searchTerm}/{topUsers[count]}.fig.pickle', 'wb' )
 
 def drawSubGraphs(tweetGraph, prSummary, searchTerm, graphVisible=True, download=True):
     """
@@ -163,6 +168,7 @@ def drawSubGraphs(tweetGraph, prSummary, searchTerm, graphVisible=True, download
     # can be plugged into the page rank calcultation.
     # have a fucntion to draw all subgraphs or a few graphs
     importantTweetSubgraphs = []
+    userStore = []
     # return a list of top 10 user nodes
     topUsers = prSummary["topNodes"].keys()
     topUsers = list(topUsers)
@@ -180,7 +186,8 @@ def drawSubGraphs(tweetGraph, prSummary, searchTerm, graphVisible=True, download
         # look for subgraph that contain most important users in the graph
         for user in topUsers:
             if user in g:
-                importantTweetSubgraphs.append(g) 
+                importantTweetSubgraphs.append(g)
+                userStore.append(user)
 
     # way to draw the subgraphs for each improtant page rank element
 
@@ -188,13 +195,16 @@ def drawSubGraphs(tweetGraph, prSummary, searchTerm, graphVisible=True, download
     # can be improved later by storing the graphs to a file which we can
     # read to store and visualize
     count = 0 #we will use this counter to get the name for the current user in topUsers
+    print("**test here**")
+    print(importantTweetSubgraphs)
     for g in importantTweetSubgraphs:
 
-           
+        g = nx.to_directed(g) #make it a directed graph
         nx.draw_spring(g, node_shape="s", with_labels=True, node_size=100, linewidths=0.25,
         bbox=dict(facecolor="skyblue", edgecolor='black', boxstyle='round,pad=0.2'))
         if download == True:
-            saveSubGraphLocally(g, topUsers, count, searchTerm)
+            print("Downloading the pickle of the graph...")
+            saveSubGraphLocally(g, userStore, count, searchTerm)
         if graphVisible == True: 
             plt.show()
         count += 1

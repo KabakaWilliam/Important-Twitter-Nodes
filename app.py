@@ -3,8 +3,9 @@
 # Assignment: 15-112 FINAL PROJECT
 # Project Name: Notable Nodes
 # Description: Identify the way information flows on twitter and visualzie it
-# Total line Count: 851 
-# Lines: (app.py ==> 50, UI.py ==> 276, graphing.py ==> 366, processTweets.py ==> 160 )
+# Total line Count: 888
+# Lines: (app.py ==> 50, UI.py ==> 276, graphing.py ==> 366, processTweets.py ==> 160,
+# customGraph.py ==> 37 )
 
 import sys
 import os

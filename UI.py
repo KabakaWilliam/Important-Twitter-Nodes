@@ -4,11 +4,11 @@ from processTweets import twitterSpider
 import customtkinter
 from settings import API_KEY, API_KEY_SECRET, API_TOKEN_SECRET,API_ACCESS_TOKEN
 import os
-from TweetAnalysis.graphing import processTweetsFromPath
+from TweetAnalysis.graphing import processTweetsFromPath, drawSubGraphs
 import pickle
 import matplotlib.pyplot as plt
 import networkx as nx
-
+import os
 
 
 consumerKey = API_KEY
@@ -191,13 +191,42 @@ class App(customtkinter.CTk):
 
     def drawSelectedGraph(self, choice):
         print("Your choice: " + choice)
-        # load the specified  pickle containing the subgraph
-        file = open(f'PickleData/{self.selectedDataset}/{choice}.fig.pickle', 'rb')
-        subgraph = pickle.load(file)
-        plt.title(choice + " subgraph")
-        nx.draw_spring(subgraph, node_shape="s", with_labels=True, node_size=100, linewidths=0.25,
-            bbox=dict(facecolor="skyblue", edgecolor='black', boxstyle='round,pad=0.2'))
-        plt.show()
+        # try and see if the selected graph is pickled. if not draw and pickle it
+        try:
+            # load the specified  pickle containing the subgraph
+            file = open(f'PickleData/{self.selectedDataset}/{choice}.fig.pickle', 'rb')
+            subgraph = pickle.load(file)
+            plt.title(choice + " subgraph")
+            nx.draw_spring(subgraph, node_shape="s", with_labels=True, node_size=100, linewidths=0.25,
+                bbox=dict(facecolor="skyblue", edgecolor='black', boxstyle='round,pad=0.2'))
+            plt.show()
+            # picklePath = f'PickleData/{self.selectedDataset}/{choice}.fig.pickle'
+            # command = f"python3 TweetAnalysis/customGraph.py {picklePath} {choice}"
+            # os.system(command)
+        except:
+            # check if graph has more than 400 nodes
+            print("pickling sub graphs")
+            self.tweetGraph = nx.to_undirected(self.tweetGraph) #must make it an undirected graph
+            # pickle graphs then open the selected graph
+            drawSubGraphs(self.tweetGraph, self.pageRankSummary, self.selectedDataset, graphVisible=False, download=True)
+            picklePath = f'PickleData/{self.selectedDataset}/{choice}.fig.pickle'
+            
+            # code below is an alternative way to load pickle. Will have graph drawn statically
+            # load the selected pickle
+            # file = open(f'PickleData/{self.selectedDataset}/{choice}.fig.pickle', 'rb')
+            # subgraph = pickle.load(file)
+            # plt.title(choice + " subgraph")
+            # nx.draw_spring(subgraph, node_shape="s", with_labels=True, node_size=100, linewidths=0.25,
+            #     bbox=dict(facecolor="skyblue", edgecolor='black', boxstyle='round,pad=0.2'))
+            # plt.show()
+
+            #open the selected folder in explore mode
+            command = f"python3 TweetAnalysis/customGraph.py {picklePath} {choice}"
+            os.system(command)
+            
+
+
+
 
 
 
